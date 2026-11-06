@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFINE Audio Hub — Практическая работа 3 (Layout Grid & Выравнивание)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Базовая палитра FIFINE Audio & UI */
+            --bg-canvas: #090d16;
+            --bg-sidebar: #0f172a;
+            --bg-content: #111827;
+            --bg-card: #1e293b;
+            --bg-card-hover: #27354f;
+            --bg-input: #0b1120;
+            --border-card: #334155;
+            --border-light: rgba(255, 255, 255, 0.08);
+
+            /* Акцентные цвета */
+            --fifine-cyan: #06b6d4;
+            --fifine-blue: #3b82f6;
+            --fifine-purple: #8b5cf6;
+            --fifine-green: #10b981;
+            --fifine-orange: #f59e0b;
+            --fifine-pink: #ec4899;
+
+            /* Текстовые цвета */
+            --text-title: #f8fafc;
+            --text-body: #cbd5e1;
+            --text-muted: #94a3b8;
+            --text-white: #ffffff;
+
+            /* Figma Grid Overlay Colors */
+            --grid-col-color: rgba(244, 63, 94, 0.12);
+            --grid-line-color: rgba(244, 63, 94, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-body);
+            min-height: 100vh;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Верхняя служебная панель переключения режимов */
+        .workspace-toolbar {
+            width: 100%;
+            max-width: 1440px;
+            background: #1e293b;
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .toolbar-info h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-subject {
+            background: rgba(6, 182, 212, 0.15);
+            border: 1px solid var(--fifine-cyan);
+            color: var(--fifine-cyan);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .toolbar-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-tool {
+            background: #334155;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-tool:hover {
+            background: #475569;
+        }
+
+        .btn-tool.active {
+            background: #e11d48;
+            border-color: #f43f5e;
+            box-shadow: 0 0 12px rgba(244, 63, 94, 0.4);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0369a1, #1d4ed8);
+        }
+
+        .view-tabs {
+            display: flex;
+            background: #0f172a;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border-card);
+        }
+
+        .view-tab {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-muted);
+            border: none;
+            background: transparent;
+            transition: 0.2s;
+        }
+
+        .view-tab.active {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* ТЕКСТОВЫЕ СТИЛИ (ПО ТЗ)                                                    */
+        /* -------------------------------------------------------------------------- */
+        .style-title {
+            font-size: 32px;
+            line-height: 40px;
+            font-weight: 700;
+            color: var(--text-title);
+        }
+
+        .style-number {
+            font-size: 40px;
+            line-height: 48px;
+            font-weight: 700;
+            color: var(--text-title);
+        }
+
+        .style-h3 {
+            font-size: 20px;
+            line-height: 24px;
+            font-weight: 600;
+            color: var(--text-title);
+        }
+
+        .style-body {
+            font-size: 16px;
+            line-height: 24px;
+            font-weight: 400;
+            color: var(--text-body);
+        }
+
+        .style-small {
+            font-size: 14px;
+            line-height: 24px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        /* ========================================================================== */
+        /* DESKTOP FRAME: 1440 x 1100 px                                              */
+        /* ========================================================================== */
+        .preview-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .frame-wrapper {
+            position: relative;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--bg-content);
+        }
+
+        .frame-header-tag {
+            background: #0f172a;
+            border-bottom: 1px solid var(--border-card);
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #desktop-frame {
+            width: 1440px;
+            height: 1100px;
+            display: flex;
+            background-color: var(--bg-content);
+            position: relative;
+        }
+
+        /* 1. БОКОВОЕ МЕНЮ (Sidebar): ширина 240px, padding 24, 5 пунктов */
+        #Sidebar {
+            width: 240px;
+            height: 1100px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-card);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .fifine-logo-mark {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.35);
+        }
+
+        .fifine-logo-mark svg {
+            width: 24px;
+            height: 24px;
+            fill: #ffffff;
+        }
+
+        .brand-text h2 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-text span {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--fifine-cyan);
+            font-weight: 600;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .nav-item {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(6, 182, 212, 0.18), rgba(59, 130, 246, 0.12));
+            color: var(--fifine-cyan);
+            border-left: 3px solid var(--fifine-cyan);
+            font-weight: 600;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid var(--border-light);
+            text-align: center;
+        }
+
+        .sidebar-bottom p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* 2. КОНТЕНТНАЯ ОБЛАСТЬ (Content): ширина 1200px, 12 колонок, margin 32, gutter 24 */
+        #Content {
+            width: 1200px;
+            height: 1100px;
+            padding: 0 32px 32px 32px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* 3. ВЕРХНЯЯ ПАНЕЛЬ (Topbar): высота 72px */
+        #Topbar {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-card);
+            margin-bottom: 24px;
+            flex-shrink: 0;
+        }
+
+        .topbar-search-user {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            width: 280px;
+            height: 40px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 0 16px 0 40px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--fifine-cyan);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 12px;
+            width: 18px;
+            height: 18px;
+            stroke: var(--text-muted);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+
+        /* СЕТКА КОНТЕНТА: 12 КОЛОНОК */
+        .content-grid-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 4. КАРТОЧКИ ПОКАЗАТЕЛЕЙ (Stats): 4 карточки по 3 колонки (≈266px), высота 160 */
+        #Stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .stat-card-component {
+            height: 160px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .stat-card-component:hover {
+            transform: translateY(-2px);
+            border-color: rgba(6, 182, 212, 0.4);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .stat-icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(6, 182, 212, 0.12);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--fifine-cyan);
+            font-size: 20px;
+        }
+
+        .stat-thumb-mini {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+        }
+
+        .stat-trend {
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trend-up {
+            color: var(--fifine-green);
+        }
+
+        .trend-neutral {
+            color: var(--fifine-cyan);
+        }
+
+        .stat-data {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        /* РЯД: ГРАФИК (8 КОЛОНОК) + РАСПИСАНИЕ/ПРЕСЕТЫ (4 КОЛОНКИ), высота 360 */
+        .chart-schedule-row {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+            height: 360px;
+        }
+
+        /* 5. КАРТОЧКА С ГРАФИКОМ (Chart): колонки 1-8 (≈749px) */
+        #Chart {
+            grid-column: span 8;
+            height: 360px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .bars-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 220px;
+            padding: 0 16px 12px 16px;
+            border-bottom: 1px dashed var(--border-light);
+            position: relative;
+        }
+
+        .bar-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: 48px;
+        }
+
+        .bar-visual {
+            width: 32px;
+            background: linear-gradient(180deg, #06b6d4 0%, #2563eb 100%);
+            border-radius: 6px 6px 0 0;
+            transition: height 0.4s ease;
+            position: relative;
+        }
+
+        .bar-col:hover .bar-visual {
+            background: linear-gradient(180deg, #38bdf8 0%, #3b82f6 100%);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .bar-value-tooltip {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 600;
+            color: #fff;
+            opacity: 0.8;
+        }
+
+        .bar-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* 6. КАРТОЧКА РАСПИСАНИЯ / ПРЕСЕТОВ (Schedule): колонки 9-12 (≈363px) */
+        #Schedule {
+            grid-column: span 4;
+            height: 360px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .schedule-title {
+            margin-bottom: 16px;
+        }
+
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .schedule-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            gap: 16px;
+        }
+
+        .schedule-time {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--fifine-cyan);
+            min-width: 52px; /* Фиксированная вертикаль времени по ТЗ */
+            text-align: left;
+            border-right: 1px solid var(--border-light);
+            padding-right: 8px;
+        }
+
+        .schedule-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .schedule-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .schedule-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* 7. ТАБЛИЦА (Table): колонки 1-12 (1136px), 5 строк высотой 56 */
+        #Table {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .table-component {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-head-row {
+            height: 40px;
+            border-bottom: 1px solid var(--border-card);
+        }
+
+        /* Выравнивание по ТЗ: текст по левому, числа по правому! */
+        .th-text, .td-text {
+            text-align: left;
+            padding: 0 16px;
+        }
+
+        .th-number, .td-number {
+            text-align: right; /* Строго по правому краю! */
+            padding: 0 20px;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+
+        .th-status, .td-status {
+            text-align: right;
+            padding: 0 16px;
+            width: 140px;
+        }
+
+        .table-row-component {
+            height: 56px; /* Высота 56px по ТЗ */
+            border-bottom: 1px solid var(--border-light);
+            transition: background-color 0.2s;
+        }
+
+        .table-row-component:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .product-img-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid var(--border-light);
+        }
+
+        .product-img-box img {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            transition: transform 0.2s;
+        }
+
+        .table-row-component:hover .product-img-box img {
+            transform: scale(1.1);
+        }
+
+        .product-titles h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .product-titles p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Чип статуса высотой 24px по ТЗ */
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px;
+            padding: 0 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .chip-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .chip-bestseller {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .chip-studio {
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .chip-preorder {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* ========================================================================== */
+        /* LAYOUT GRID OVERLAY (Сетка 12 колонок в зоне 1200)                         */
+        /* ========================================================================== */
+        .figma-grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 240px; /* Сетка живёт ТОЛЬКО внутри зоны Content (1200px) справа от Sidebar! */
+            width: 1200px;
+            height: 1100px;
+            pointer-events: none;
+            z-index: 99;
+            padding: 0 32px; /* Margin 32 */
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px; /* Gutter 24 */
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .figma-grid-overlay.visible {
+            opacity: 1;
+        }
+
+        .grid-column-guide {
+            background: var(--grid-col-color);
+            border-left: 1px solid var(--grid-line-color);
+            border-right: 1px solid var(--grid-line-color);
+            height: 100%;
+            position: relative;
+        }
+
+        .grid-column-guide::after {
+            content: attr(data-col);
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 700;
+            color: #f43f5e;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        /* ========================================================================== */
+        /* MOBILE FRAME: 375 px, 4 колонки, Margin 16, Gutter 16                      */
+        /* ========================================================================== */
+        #mobile-frame {
+            width: 375px;
+            background-color: var(--bg-content);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 70px; /* Отступ под нижнюю навигацию */
+        }
+
+        .mobile-status-bar {
+            height: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: #0f172a;
+        }
+
+        .mobile-content {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+        }
+
+        .mobile-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .mobile-topbar h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .mobile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .mobile-stat-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .mobile-stat-card .val {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .mobile-stat-card .label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .mobile-chart-card, .mobile-schedule-card, .mobile-table-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .mobile-chart-card h3, .mobile-schedule-card h3, .mobile-table-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .mobile-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 120px;
+            padding: 0 8px 8px 8px;
+            border-bottom: 1px dashed var(--border-light);
+        }
+
+        .mobile-bar-visual {
+            width: 18px;
+            background: linear-gradient(180deg, #06b6d4, #2563eb);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .mobile-table-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .mobile-table-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 8. НИЖНЯЯ НАВИГАЦИЯ (Mobile): 64px, 4 иконки */
+        .mobile-bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            background-color: #0f172a;
+            border-top: 1px solid var(--border-card);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 20;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .bottom-nav-item.active {
+            color: var(--fifine-cyan);
+        }
+
+        .bottom-nav-item svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* Сетка для мобильного */
+        .mobile-grid-overlay {
+            position: absolute;
+            top: 28px;
+            left: 0;
+            width: 375px;
+            height: calc(100% - 28px);
+            pointer-events: none;
+            z-index: 99;
+            padding: 0 16px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .mobile-grid-overlay.visible {
+            opacity: 1;
+        }
+
+        @media print {
+            body {
+                background: #090d16 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 0;
+            }
+            .workspace-toolbar, .assignment-answers-panel {
+                display: none !important;
+            }
+            .preview-container {
+                gap: 20px;
+            }
+            .frame-wrapper {
+                page-break-after: always;
+                box-shadow: none !important;
+                border: 1px solid #334155;
+            }
+            #desktop-wrapper, #mobile-wrapper {
+                display: block !important;
+            }
+        }
+        .assignment-answers-panel {
+            width: 100%;
+            max-width: 1440px;
+            background: #1e293b;
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            padding: 24px;
+            margin-top: 32px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        .assignment-answers-panel h2 {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .error-card {
+            background: #0f172a;
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            padding: 16px;
+            border-left: 4px solid #f43f5e;
+        }
+
+        .error-card h4 {
+            font-size: 14px;
+            color: #f43f5e;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .error-card p {
+            font-size: 13px;
+            color: var(--text-body);
+            line-height: 1.5;
+        }
+
+        .error-card .fix {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #34d399;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ УПРАВЛЕНИЯ -->
+    <div class="workspace-toolbar">
+        <div class="toolbar-info">
+            <h1>
+                FIFINE Audio Hub · Дашборд наушников
+                <span class="badge-subject">Тема 10 · Layout Grid & Выравнивание</span>
+            </h1>
+            <p>Практическая работа 3 · 3 курс · Точные параметры колонок, кратные 8px отступы и компоненты Auto Layout</p>
+        </div>
+
+        <div class="toolbar-actions">
+            <div class="view-tabs">
+                <button class="view-tab active" id="tab-desktop" onclick="switchView('desktop')">Desktop (1440×1100)</button>
+                <button class="view-tab" id="tab-mobile" onclick="switchView('mobile')">Mobile (375px)</button>
+                <button class="view-tab" id="tab-both" onclick="switchView('both')">Сравнить оба</button>
+            </div>
+
+            <button class="btn-tool" onclick="window.print()" style="background: linear-gradient(135deg, #10b981, #059669); border: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                <span>Экспорт в PDF (Печать)</span>
+            </button>
+            <button class="btn-tool" id="gridToggleBtn" onclick="toggleLayoutGrid()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+                </svg>
+                <span>Сетка Grid (Ctrl+Shift+4)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- КОНТЕЙНЕР ПРЕВЬЮ -->
+    <div class="preview-container">
+
+        <!-- ================================================================= -->
+        <!-- 1. DESKTOP 1440 x 1100                                            -->
+        <!-- ================================================================= -->
+        <div class="frame-wrapper" id="desktop-wrapper">
+            <div class="frame-header-tag">
+                <span>Фрейм: Desktop 1440 × 1100 px</span>
+                <span>Сетка: 12 колонок в зоне 1200 px (Margin 32, Gutter 24) · Меню 240 px</span>
+            </div>
+
+            <div id="desktop-frame">
+                <!-- СЕТКА LAYOUT GRID OVERLAY (подсвечивается при Ctrl+Shift+4) -->
+                <div class="figma-grid-overlay" id="desktopGridOverlay">
+                    <div class="grid-column-guide" data-col="1"></div>
+                    <div class="grid-column-guide" data-col="2"></div>
+                    <div class="grid-column-guide" data-col="3"></div>
+                    <div class="grid-column-guide" data-col="4"></div>
+                    <div class="grid-column-guide" data-col="5"></div>
+                    <div class="grid-column-guide" data-col="6"></div>
+                    <div class="grid-column-guide" data-col="7"></div>
+                    <div class="grid-column-guide" data-col="8"></div>
+                    <div class="grid-column-guide" data-col="9"></div>
+                    <div class="grid-column-guide" data-col="10"></div>
+                    <div class="grid-column-guide" data-col="11"></div>
+                    <div class="grid-column-guide" data-col="12"></div>
+                </div>
+
+                <!-- БЛОК 1: БОКОВОЕ МЕНЮ (Sidebar: 240px, padding 24, 5 пунктов) -->
+                <aside id="Sidebar">
+                    <div class="sidebar-brand">
+                        <div class="fifine-logo-mark">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 3a9 9 0 0 0-9 9v7a3 3 0 0 0 3 3h1a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5a7 7 0 1 1 14 0h-2a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1a3 3 0 0 0 3-3v-7a9 9 0 0 0-9-9z"/>
+                            </svg>
+                        </div>
+                        <div class="brand-text">
+                            <h2>FIFINE</h2>
+                            <span>AUDIO LAB</span>
+                        </div>
+                    </div>
+
+                    <ul class="nav-list">
+                        <li>
+                            <a class="nav-item active" href="#dashboard">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                    <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                    <rect x="14" y="14" width="7" height="7" rx="1"/>
+                                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                </svg>
+                                <span>Главная</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-item" href="#devices">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                                    <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+                                </svg>
+                                <span>Наушники</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-item" href="#equalizer">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <line x1="4" y1="21" x2="4" y2="14"/>
+                                    <line x1="4" y1="10" x2="4" y2="3"/>
+                                    <line x1="12" y1="21" x2="12" y2="12"/>
+                                    <line x1="12" y1="8" x2="12" y2="3"/>
+                                    <line x1="20" y1="21" x2="20" y2="16"/>
+                                    <line x1="20" y1="12" x2="20" y2="3"/>
+                                    <circle cx="4" cy="12" r="2"/>
+                                    <circle cx="12" cy="10" r="2"/>
+                                    <circle cx="20" cy="14" r="2"/>
+                                </svg>
+                                <span>Эквалайзер</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-item" href="#orders">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10 9 9 9 8 9"/>
+                                </svg>
+                                <span>Документы</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-item" href="#profile">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                <span>Профиль</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="sidebar-bottom">
+                        <p>FIFINE Hub v2.4</p>
+                        <p style="color: var(--fifine-cyan); margin-top:2px;">7.1 Surround Engine</p>
+                    </div>
+                </aside>
+
+                <!-- БЛОК 2: КОНТЕНТНАЯ ОБЛАСТЬ (Content: 1200px) -->
+                <main id="Content">
+                    <!-- ТОПБАР (Topbar: высота 72px) -->
+                    <header id="Topbar">
+                        <h1 class="style-title">Личный кабинет FIFINE</h1>
+
+                        <div class="topbar-search-user">
+                            <div class="search-box">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                                <input type="text" placeholder="Поиск модели, пресета..." value="Fifine H6 AmpliGame">
+                            </div>
+                            <div class="user-avatar" title="Аудио-инженер">FF</div>
+                        </div>
+                    </header>
+
+                    <div class="content-grid-container">
+                        <!-- БЛОК 3: 4 КАРТОЧКИ ПОКАЗАТЕЛЕЙ (Stats: 4 по 3 колонки ≈ 266px, высота 160) -->
+                        <section id="Stats">
+                            <!-- Карточка 1 -->
+                            <div class="stat-card-component">
+                                <div class="stat-top">
+                                    <img class="stat-thumb-mini" src="https://fifinemicrophone.com/cdn/shop/files/FIFINE-H6-headset.png" alt="Fifine H6">
+                                    <span class="stat-trend trend-up">● В сети</span>
+                                </div>
+                                <div class="stat-data">
+                                    <p class="style-small">Активная модель</p>
+                                    <p class="style-number">H6 7.1</p>
+                                    <p class="style-small" style="color: var(--fifine-cyan);">USB 24-bit Surround</p>
+                                </div>
+                            </div>
+
+                            <!-- Карточка 2 -->
+                            <div class="stat-card-component">
+                                <div class="stat-top">
+                                    <div class="stat-icon-circle">⚡</div>
+                                    <span class="stat-trend trend-up">↑ +4.2 ч</span>
+                                </div>
+                                <div class="stat-data">
+                                    <p class="style-small">Автономность недели</p>
+                                    <p class="style-number">48<span style="font-size:24px;">ч</span></p>
+                                    <p class="style-small">98% стабильности связи</p>
+                                </div>
+                            </div>
+
+                            <!-- Карточка 3 -->
+                            <div class="stat-card-component">
+                                <div class="stat-top">
+                                    <div class="stat-icon-circle" style="background: rgba(139, 92, 246, 0.15); color: var(--fifine-purple); border-color: rgba(139, 92, 246, 0.3);">★</div>
+                                    <span class="stat-trend trend-neutral">Топ 1</span>
+                                </div>
+                                <div class="stat-data">
+                                    <p class="style-small">Рейтинг звучания</p>
+                                    <p class="style-number">4.9</p>
+                                    <p class="style-small">2 480 проверенных тестов</p>
+                                </div>
+                            </div>
+
+                            <!-- Карточка 4 -->
+                            <div class="stat-card-component">
+                                <div class="stat-top">
+                                    <div class="stat-icon-circle" style="background: rgba(245, 158, 11, 0.15); color: var(--fifine-orange); border-color: rgba(245, 158, 11, 0.3);">⏳</div>
+                                    <span class="stat-trend trend-neutral">12 ноя</span>
+                                </div>
+                                <div class="stat-data">
+                                    <p class="style-small">Ближайшая калибровка</p>
+                                    <p class="style-number">7<span style="font-size:24px;">дн</span></p>
+                                    <p class="style-small" style="color: var(--fifine-orange);">Замена пресетов EQ</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- БЛОК 4: ГРАФИК (колонки 1-8) И РАСПИСАНИЕ (колонки 9-12), высота 360 -->
+                        <div class="chart-schedule-row">
+                            <!-- График успеваемости / активности звука (колонки 1-8) -->
+                            <section id="Chart">
+                                <div class="chart-header">
+                                    <h3 class="style-h3">Интенсивность использования наушников (Часы)</h3>
+                                    <div class="chart-legend">
+                                        <span><span class="legend-dot" style="background: #06b6d4;"></span>Игры & 7.1</span>
+                                        <span><span class="legend-dot" style="background: #3b82f6;"></span>Мониторинг</span>
+                                    </div>
+                                </div>
+
+                                <div class="bars-container">
+                                    <!-- 8 столбцов разной высоты по ТЗ -->
+                                    <div class="bar-col">
+                                        <div class="bar-visual" style="height: 110px;">
+                                            <span class="bar-value-tooltip">42ч</span>
+                                        </div>
+                                        <span class="bar-label style-small">Янв</span>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-visual" style="height: 145px;">
+                                            <span class="bar-value-tooltip">58ч</span>
+                                        </div>
+                                        <span class="bar-label style-small">Фев</span>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-visual" style="height: 95px;">
+                                            <span class="bar-value-tooltip">36ч</span>
+                                        </div>
+                                        <span class="bar-label style-small">Мар</span>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-visual" style="height: 175px;">
+                                            <span class="bar-value-tooltip">70ч</span>
+                                        </div>
+                                        <span class="bar-label style-small">Апр</span>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-visual" style="height: 155px;">
+                                            <span class="bar-value-tooltip">62ч</span>
+                                        </div>
+                                        <span class="bar-label style-small">Май</span>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-visual" style="height: 195px;">
+                                            <span class="bar-value-tooltip">78ч</span>
+                                        </div>
+                                        <span class="bar-label style-small">Июн</span>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-visual" style="height: 160px;">
+                                            <span class="bar-value-tooltip">64ч</span>
+                                        </div>
+                                        <span class="bar-label style-small">Июл</span>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-visual" style="height: 185px;">
+                                            <span class="bar-value-tooltip">74ч</span>
+                                        </div>
+                                        <span class="bar-label style-small">Авг</span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Расписание сессий / Пресеты (колонки 9-12) -->
+                            <section id="Schedule">
+                                <h3 class="style-h3 schedule-title">Расписание на сегодня</h3>
+
+                                <div class="schedule-list">
+                                    <!-- 4 занятия/сессии со временем по ТЗ -->
+                                    <div class="schedule-row">
+                                        <div class="schedule-time">09:00</div>
+                                        <div class="schedule-details">
+                                            <span class="schedule-name">Акустический тест драйверов</span>
+                                            <span class="schedule-sub">Лаборатория звука · Стенд 4</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="schedule-row">
+                                        <div class="schedule-time">11:30</div>
+                                        <div class="schedule-details">
+                                            <span class="schedule-name">Игровой турнир CS2 (H6 7.1)</span>
+                                            <span class="schedule-sub">Cyber Arena · Пресет FPS Footsteps</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="schedule-row">
+                                        <div class="schedule-time">14:00</div>
+                                        <div class="schedule-details">
+                                            <span class="schedule-name">Студийный мастеринг (H8)</span>
+                                            <span class="schedule-sub">Аудитория 302 · Flac 96kHz/24bit</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="schedule-row">
+                                        <div class="schedule-time">16:45</div>
+                                        <div class="schedule-details">
+                                            <span class="schedule-name">Стрим & Шумоподавление (H9)</span>
+                                            <span class="schedule-sub">Discord Studio · Микрофон ENC</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- БЛОК 5: ТАБЛИЦА ОЦЕНОК / ХАРАКТЕРИСТИК (колонки 1-12: 1136px, 5 строк высотой 56) -->
+                        <section id="Table">
+                            <h3 class="style-h3">Линейка наушников FIFINE & Оценки тестов</h3>
+
+                            <table class="table-component">
+                                <thead>
+                                    <tr class="table-head-row">
+                                        <th class="th-text style-small" style="width: 320px;">Модель наушников</th>
+                                        <th class="th-text style-small">Тип подключения / Драйвер</th>
+                                        <th class="th-number style-small">Баллы теста</th>
+                                        <th class="th-status style-small">Статус</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Строка 1: Fifine AmpliGame H6 -->
+                                    <tr class="table-row-component">
+                                        <td class="td-text">
+                                            <div class="product-cell">
+                                                <div class="product-img-box">
+                                                    <img src="https://fifinemicrophone.com/cdn/shop/files/FIFINE-H6-headset.png" alt="Fifine H6">
+                                                </div>
+                                                <div class="product-titles">
+                                                    <h4>FIFINE AmpliGame H6</h4>
+                                                    <p>USB 7.1 Virtual Surround, RGB</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="td-text style-body">USB-A / 50 мм Неодим</td>
+                                        <td class="td-number style-body" style="font-weight: 700; color: #fff;">98 / 100</td>
+                                        <td class="td-status">
+                                            <span class="status-chip chip-active">Подключено</span>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Строка 2: Fifine AmpliGame H9 -->
+                                    <tr class="table-row-component">
+                                        <td class="td-text">
+                                            <div class="product-cell">
+                                                <div class="product-img-box">
+                                                    <img src="https://fifinemicrophone.com/cdn/shop/files/FIFINE-H9-gaming.png" alt="Fifine H9">
+                                                </div>
+                                                <div class="product-titles">
+                                                    <h4>FIFINE AmpliGame H9</h4>
+                                                    <p>3.5 мм Jack + USB пульт управления</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="td-text style-body">Комбинированный / 50 мм</td>
+                                        <td class="td-number style-body" style="font-weight: 700; color: #fff;">95 / 100</td>
+                                        <td class="td-status">
+                                            <span class="status-chip chip-bestseller">Хит продаж</span>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Строка 3: Fifine H8 Studio -->
+                                    <tr class="table-row-component">
+                                        <td class="td-text">
+                                            <div class="product-cell">
+                                                <div class="product-img-box">
+                                                    <img src="https://fifinemicrophone.com/cdn/shop/files/FIFINE-H8-studio-headphones.png" alt="Fifine H8">
+                                                </div>
+                                                <div class="product-titles">
+                                                    <h4>FIFINE H8 Studio Monitor</h4>
+                                                    <p>Профессиональные студийные наушники</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="td-text style-body">3.5 / 6.35 мм / 50 мм DJ</td>
+                                        <td class="td-number style-body" style="font-weight: 700; color: #fff;">92 / 100</td>
+                                        <td class="td-status">
+                                            <span class="status-chip chip-studio">Студия</span>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Строка 4: Fifine AmpliGame H3 -->
+                                    <tr class="table-row-component">
+                                        <td class="td-text">
+                                            <div class="product-cell">
+                                                <div class="product-img-box">
+                                                    <img src="https://fifinemicrophone.com/cdn/shop/files/FIFINE-H3-headset-1.png" alt="Fifine H3">
+                                                </div>
+                                                <div class="product-titles">
+                                                    <h4>FIFINE AmpliGame H3</h4>
+                                                    <p>Ультралегкая игровая гарнитура</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="td-text style-body">3.5 мм TRRS / 50 мм RGB</td>
+                                        <td class="td-number style-body" style="font-weight: 700; color: #fff;">88 / 100</td>
+                                        <td class="td-status">
+                                            <span class="status-chip chip-active">В наличии</span>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Строка 5: Fifine H6 RGB Special -->
+                                    <tr class="table-row-component">
+                                        <td class="td-text">
+                                            <div class="product-cell">
+                                                <div class="product-img-box">
+                                                    <img src="https://fifinemicrophone.com/cdn/shop/files/FIFINE-H6-rgb-gamin-headsets.png" alt="Fifine H6 RGB">
+                                                </div>
+                                                <div class="product-titles">
+                                                    <h4>FIFINE H6 Pink Limited</h4>
+                                                    <p>Лимитированная серия с RGB подсветкой</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="td-text style-body">USB-A / 24-bit DSP Equalizer</td>
+                                        <td class="td-number style-body" style="font-weight: 700; color: #fff;">96 / 100</td>
+                                        <td class="td-status">
+                                            <span class="status-chip chip-preorder">Предзаказ</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- 2. MOBILE 375 px (4 КОЛОНКИ, MARGIN 16, GUTTER 16)                 -->
+        <!-- ================================================================= -->
+        <div class="frame-wrapper" id="mobile-wrapper" style="display: none;">
+            <div class="frame-header-tag">
+                <span>Фрейм: Mobile 375 × Auto px</span>
+                <span>Сетка: 4 колонки (Margin 16, Gutter 16) · Нижняя панель 64 px</span>
+            </div>
+
+            <div id="mobile-frame">
+                <!-- Сетка для мобильного -->
+                <div class="mobile-grid-overlay" id="mobileGridOverlay">
+                    <div class="grid-column-guide" data-col="1"></div>
+                    <div class="grid-column-guide" data-col="2"></div>
+                    <div class="grid-column-guide" data-col="3"></div>
+                    <div class="grid-column-guide" data-col="4"></div>
+                </div>
+
+                <div class="mobile-status-bar">
+                    <span>09:41</span>
+                    <span>5G · 100%</span>
+                </div>
+
+                <div class="mobile-content">
+                    <!-- Верхняя панель: заголовок и аватар -->
+                    <div class="mobile-topbar">
+                        <div>
+                            <h2>FIFINE Audio</h2>
+                            <p class="style-small" style="font-size: 12px;">Личный кабинет</p>
+                        </div>
+                        <div class="user-avatar" style="width: 36px; height: 36px; font-size: 13px;">FF</div>
+                    </div>
+
+                    <!-- Карточки показателей: 2 в ряд по 2 колонки (≈ 163.5 px) -->
+                    <div class="mobile-stats-grid">
+                        <div class="mobile-stat-card">
+                            <span class="label">Активно</span>
+                            <span class="val">H6 7.1</span>
+                            <span style="font-size: 11px; color: var(--fifine-cyan);">● В сети</span>
+                        </div>
+                        <div class="mobile-stat-card">
+                            <span class="label">Время работы</span>
+                            <span class="val">48 ч</span>
+                            <span style="font-size: 11px; color: var(--fifine-green);">↑ +4.2 ч</span>
+                        </div>
+                        <div class="mobile-stat-card">
+                            <span class="label">Оценка звука</span>
+                            <span class="val">4.9 ★</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">2.4k отзывов</span>
+                        </div>
+                        <div class="mobile-stat-card">
+                            <span class="label">Калибровка</span>
+                            <span class="val">7 дн</span>
+                            <span style="font-size: 11px; color: var(--fifine-orange);">Замена EQ</span>
+                        </div>
+                    </div>
+
+                    <!-- График на все 4 колонки -->
+                    <div class="mobile-chart-card">
+                        <h3>Использование наушников (ч)</h3>
+                        <div class="mobile-bars">
+                            <div class="mobile-bar-visual" style="height: 50px;"></div>
+                            <div class="mobile-bar-visual" style="height: 70px;"></div>
+                            <div class="mobile-bar-visual" style="height: 45px;"></div>
+                            <div class="mobile-bar-visual" style="height: 90px;"></div>
+                            <div class="mobile-bar-visual" style="height: 80px;"></div>
+                            <div class="mobile-bar-visual" style="height: 105px;"></div>
+                            <div class="mobile-bar-visual" style="height: 85px;"></div>
+                            <div class="mobile-bar-visual" style="height: 95px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Расписание на все 4 колонки -->
+                    <div class="mobile-schedule-card">
+                        <h3>Сессии на сегодня</h3>
+                        <div class="schedule-list">
+                            <div class="schedule-row" style="padding: 8px;">
+                                <div class="schedule-time" style="min-width: 44px; font-size: 12px;">09:00</div>
+                                <div class="schedule-details">
+                                    <span class="schedule-name" style="font-size: 13px;">Тест драйверов H6</span>
+                                    <span class="schedule-sub">Лаборатория звука</span>
+                                </div>
+                            </div>
+                            <div class="schedule-row" style="padding: 8px;">
+                                <div class="schedule-time" style="min-width: 44px; font-size: 12px;">11:30</div>
+                                <div class="schedule-details">
+                                    <span class="schedule-name" style="font-size: 13px;">Турнир CS2</span>
+                                    <span class="schedule-sub">Пресет 7.1 Footsteps</span>
+                                </div>
+                            </div>
+                            <div class="schedule-row" style="padding: 8px;">
+                                <div class="schedule-time" style="min-width: 44px; font-size: 12px;">14:00</div>
+                                <div class="schedule-details">
+                                    <span class="schedule-name" style="font-size: 13px;">Мастеринг H8</span>
+                                    <span class="schedule-sub">Аудитория 302</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Таблица как карточки: Модель и баллы -->
+                    <div class="mobile-table-card">
+                        <h3>Модели & Оценки</h3>
+                        <div class="mobile-table-item">
+                            <div class="product-cell">
+                                <div class="product-img-box" style="width: 36px; height: 36px;">
+                                    <img src="https://fifinemicrophone.com/cdn/shop/files/FIFINE-H6-headset.png" style="width: 30px; height: 30px;" alt="H6">
+                                </div>
+                                <div>
+                                    <div style="font-size: 13px; font-weight: 600; color: #fff;">AmpliGame H6</div>
+                                    <div style="font-size: 11px; color: var(--fifine-cyan);">USB 7.1</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: #fff; font-size: 14px;">98 / 100</div>
+                                <span class="status-chip chip-active" style="height: 20px; font-size: 10px; padding: 0 6px;">В сети</span>
+                            </div>
+                        </div>
+
+                        <div class="mobile-table-item">
+                            <div class="product-cell">
+                                <div class="product-img-box" style="width: 36px; height: 36px;">
+                                    <img src="https://fifinemicrophone.com/cdn/shop/files/FIFINE-H9-gaming.png" style="width: 30px; height: 30px;" alt="H9">
+                                </div>
+                                <div>
+                                    <div style="font-size: 13px; font-weight: 600; color: #fff;">AmpliGame H9</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);">3.5mm + USB</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: #fff; font-size: 14px;">95 / 100</div>
+                                <span class="status-chip chip-bestseller" style="height: 20px; font-size: 10px; padding: 0 6px;">Хит</span>
+                            </div>
+                        </div>
+
+                        <div class="mobile-table-item">
+                            <div class="product-cell">
+                                <div class="product-img-box" style="width: 36px; height: 36px;">
+                                    <img src="https://fifinemicrophone.com/cdn/shop/files/FIFINE-H8-studio-headphones.png" style="width: 30px; height: 30px;" alt="H8">
+                                </div>
+                                <div>
+                                    <div style="font-size: 13px; font-weight: 600; color: #fff;">FIFINE H8</div>
+                                    <div style="font-size: 11px; color: var(--fifine-purple);">Studio DJ</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: #fff; font-size: 14px;">92 / 100</div>
+                                <span class="status-chip chip-studio" style="height: 20px; font-size: 10px; padding: 0 6px;">Студия</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- БЛОК 8: НИЖНЯЯ НАВИГАЦИЯ (Mobile: высота 64px, 4 иконки) -->
+                <nav class="mobile-bottom-nav">
+                    <div class="bottom-nav-item active">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        <span>Главная</span>
+                    </div>
+                    <div class="bottom-nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                            <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+                        </svg>
+                        <span>Наушники</span>
+                    </div>
+                    <div class="bottom-nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="20" x2="12" y2="10"/>
+                            <line x1="18" y1="20" x2="18" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="16"/>
+                        </svg>
+                        <span>График</span>
+                    </div>
+                    <div class="bottom-nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span>Профиль</span>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ОТВЕТЫ НА ЗАДАНИЕ Б (НАЙДИ 6 ОШИБОК) -->
+    <div class="assignment-answers-panel">
+        <h2>
+            <span>📝</span> Запасное задание Б · Разбор 6 ошибок выравнивания и сетки
+        </h2>
+        <p style="color: var(--text-muted); font-size: 14px;">
+            В практической работе приведён скриншот «сломанного» макета. Ниже приведены все 6 допущенных нарушений с точным описанием проблемы и способом исправления по ТЗ:
+        </p>
+
+        <div class="answers-grid">
+            <div class="error-card">
+                <h4>1. Карточки показателей разной ширины и пропуски</h4>
+                <p>В первом ряду вторая карточка занимает 2 колонки вместо 3, между 2-й и 3-й карточками пустой зазор в целую колонку, а третья карточка тоже сжата.</p>
+                <div class="fix">✔ Исправление: все 4 карточки должны строго занимать ровно по 3 колонки (≈266 px), а отступы между ними должны быть равны gutter (24 px).</div>
+            </div>
+
+            <div class="error-card">
+                <h4>2. Карточки показателей разной высоты</h4>
+                <p>Первая карточка имеет высоту больше 160 px, а соседние меньше, из-за чего нижняя линия карточек «пляшет» и нарушает горизонтальный ритм.</p>
+                <div class="fix">✔ Исправление: зафиксировать высоту 160 px или оформить карточку единым компонентом StatCard с фиксированной высотой и внутренними отступами padding 20.</div>
+            </div>
+
+            <div class="error-card">
+                <h4>3. График занимает 7 колонок вместо 8</h4>
+                <p>Блок графика слева оканчивается на 7-й колонке. Образовалась дыра между графиком и расписанием, равная 1 колонке + 2 gutter.</p>
+                <div class="fix">✔ Исправление: растянуть карточку графика на колонки 1–8 (≈749 px), а расписание поставить строго на колонки 9–12 (≈363 px).</div>
+            </div>
+
+            <div class="error-card">
+                <h4>4. Разная высота и несовпадение краев графика и расписания</h4>
+                <p>Верхний и нижний края карточки графика и карточки расписания не совпадают по вертикали, нарушая общую направляющую сетки.</p>
+                <div class="fix">✔ Исправление: задать обеим карточкам одинаковую высоту 360 px, выровнять их верхний край по одной линии с отступом 24 px от ряда карточек сверху.</div>
+            </div>
+
+            <div class="error-card">
+                <h4>5. Выравнивание чисел в таблице по левому/центру</h4>
+                <p>В колонке «Баллы» числа выровнены по левому краю или по центру, а точки/разделители не совпадают по вертикали.</p>
+                <div class="fix">✔ Исправление: числа и заголовок колонки «Баллы» выровнять строго по правому краю (Right Align) с включенным табличным шрифтом (Tabular numbers).</div>
+            </div>
+
+            <div class="error-card">
+                <h4>6. Нарушение шага сетки 8px и полей таблицы</h4>
+                <p>Таблица смещена влево, выходит за левое поле Margin 32, а отступы между строками и чипами статуса произвольные (с дробями и не кратны 8/4 px).</p>
+                <div class="fix">✔ Исправление: привязать таблицу к ширине 1136 px (12 колонок с полями 32), сделать строки компонентом TableRow высотой 56 px и чип высотой 24 px.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- СКРИПТ УПРАВЛЕНИЯ -->
+    <script>
+        let isGridVisible = false;
+
+        function toggleLayoutGrid() {
+            isGridVisible = !isGridVisible;
+            const desktopGrid = document.getElementById('desktopGridOverlay');
+            const mobileGrid = document.getElementById('mobileGridOverlay');
+            const btn = document.getElementById('gridToggleBtn');
+
+            if (isGridVisible) {
+                desktopGrid.classList.add('visible');
+                mobileGrid.classList.add('visible');
+                btn.classList.add('active');
+            } else {
+                desktopGrid.classList.remove('visible');
+                mobileGrid.classList.remove('visible');
+                btn.classList.remove('active');
+            }
+        }
+
+        // Горячая клавиша Figma: Ctrl + Shift + 4
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === '4' || e.code === 'Digit4')) {
+                e.preventDefault();
+                toggleLayoutGrid();
+            }
+        });
+
+        function switchView(mode) {
+            const desktopWrap = document.getElementById('desktop-wrapper');
+            const mobileWrap = document.getElementById('mobile-wrapper');
+            const tabDesktop = document.getElementById('tab-desktop');
+            const tabMobile = document.getElementById('tab-mobile');
+            const tabBoth = document.getElementById('tab-both');
+
+            [tabDesktop, tabMobile, tabBoth].forEach(t => t.classList.remove('active'));
+
+            if (mode === 'desktop') {
+                desktopWrap.style.display = 'block';
+                mobileWrap.style.display = 'none';
+                tabDesktop.classList.add('active');
+            } else if (mode === 'mobile') {
+                desktopWrap.style.display = 'none';
+                mobileWrap.style.display = 'block';
+                tabMobile.classList.add('active');
+            } else {
+                desktopWrap.style.display = 'block';
+                mobileWrap.style.display = 'block';
+                tabBoth.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

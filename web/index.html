@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ModCraft Studio — Магазин по заказу модов</title>
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #131b2e;
+            --bg-card-hover: #1a253e;
+            --bg-input: #0e1526;
+            --border: #223055;
+            --border-focus: #38bdf8;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.25);
+            --accent: #818cf8;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+        }
+
+        header {
+            background: linear-gradient(180deg, #162036 0%, var(--bg-main) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .logo-icon {
+            font-size: 32px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            color: var(--success);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .nav-tabs {
+            max-width: 1100px;
+            margin: 20px auto 0;
+            padding: 0 20px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+            flex: 1;
+            width: 100%;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 10px 14px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .checkbox-label:hover {
+            border-color: var(--border-focus);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            accent-color: var(--primary);
+            width: 16px;
+            height: 16px;
+        }
+
+        .badge-info {
+            display: inline-block;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-top: 4px;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--primary);
+        }
+
+        /* Result Report Card */
+        .report-box {
+            background: #0f1628;
+            border: 1px solid #2d3e69;
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-top: 24px;
+            display: none;
+        }
+
+        .report-box.show {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2d3e69;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+
+        .report-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed #243355;
+        }
+
+        .report-section:last-child {
+            border-bottom: none;
+        }
+
+        .report-section h4 {
+            font-size: 14px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .report-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .report-row .label {
+            color: var(--text-muted);
+        }
+
+        .report-row .val {
+            font-weight: 600;
+        }
+
+        .price-highlight {
+            font-size: 22px;
+            color: var(--success);
+            font-weight: 800;
+        }
+
+        .recommendation-text {
+            background: rgba(129, 140, 248, 0.08);
+            border-left: 3px solid var(--accent);
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 8px;
+            white-space: pre-line;
+        }
+
+        .verdict-badge {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .verdict-accepted {
+            background: rgba(52, 211, 153, 0.15);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .verdict-rejected {
+            background: rgba(248, 113, 113, 0.15);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .tariff-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .tariff-card:hover, .tariff-card.selected {
+            border-color: var(--primary);
+            background: var(--bg-card-hover);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .tariff-price {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 12px 0;
+        }
+
+        .table-tz {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .table-tz th, .table-tz td {
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            text-align: left;
+        }
+
+        .table-tz th {
+            background: #19233c;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .table-tz tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            background: #090d16;
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            .logo {
+                justify-content: center;
+            }
+            .status-badge {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <div>
+                    <h1>ModCraft Studio</h1>
+                    <p>Локальная система оформления и расчёта модов (ТЗ 1-25)</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <a href="fifine-dashboard.html" style="background: linear-gradient(135deg, #06b6d4, #2563eb); color: #fff; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(6,182,212,0.35); transition: 0.2s;">
+                    🎧 Дашборд FIFINE Headphones (Практическая 3)
+                </a>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>Локальный сервер активен • JDK 25</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('wizard')">🛒 Мастер заказа (ТЗ 21-25)</button>
+        <button class="tab-btn" onclick="switchTab('calculator')">💰 Калькулятор тарифов (ТЗ 4, 11, 18)</button>
+        <button class="tab-btn" onclick="switchTab('safety')">🛡️ Безопасность и ТЗ (ТЗ 10, 13, 14)</button>
+        <button class="tab-btn" onclick="switchTab('recommend')">💡 Рекомендатор (ТЗ 15, 20)</button>
+        <button class="tab-btn" onclick="switchTab('reference')">📋 Справочник ТЗ (1-25)</button>
+    </nav>
+
+    <main>
+        <!-- ======================================================== -->
+        <!-- ВКЛАДКА 1: МАСТЕР ЗАКАЗА (ТЗ 21-25) -->
+        <!-- ======================================================== -->
+        <div id="tab-wizard" class="tab-content active">
+            <div class="card">
+                <div class="card-title">🛒 Оформление заказа модификации</div>
+                <form id="orderForm" onsubmit="calculateFullOrder(event)">
+                    
+                    <!-- Данные клиента -->
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Ваше имя / Никнейм:</label>
+                            <input type="text" id="custName" value="Алексей" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Возраст заказчика (ТЗ 6):</label>
+                            <input type="number" id="custAge" value="20" min="6" max="100" required onchange="updateAgeBadge()">
+                            <div id="ageBadge" class="badge-info">Взрослая категория (18-59 лет)</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Статус аккаунта (ТЗ 3):</label>
+                            <select id="custStatus">
+                                <option value="1">Активный клиент</option>
+                                <option value="2">Неактивный клиент</option>
+                                <option value="3">Заблокированный клиент (!)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Сумма прошлых покупок (₽) (ТЗ 8):</label>
+                            <input type="number" id="custSpent" value="12000" min="0">
+                        </div>
+                    </div>
+
+                    <!-- Выбор категории услуги -->
+                    <div class="form-group">
+                        <label>Категория услуги (ТЗ 17):</label>
+                        <select id="serviceCategory">
+                            <option value="1">1. Текстуры и 3D-модели (Blender, Blockbench, Photoshop)</option>
+                            <option value="2" selected>2. Скрипты и новый геймплей (Java, C#, Lua, новые механики)</option>
+                            <option value="3">3. Глобальная конверсия (Команда: код + арт + геймдизайн)</option>
+                            <option value="4">4. Оптимизация и фиксы багов (Повышение FPS, оптимизация памяти)</option>
+                            <option value="5">5. Портирование мода (Перенос на новую версию игры/движка)</option>
+                        </select>
+                    </div>
+
+                    <!-- 5 параметров предметной области (ТЗ 21, 22) -->
+                    <div class="card-title" style="margin-top: 20px; font-size: 16px;">
+                        ⚙️ 5 параметров индивидуального модуля (ТЗ 21, 22)
+                    </div>
+                    
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label>1. Движок / Игра:</label>
+                            <select id="engineType">
+                                <option value="1">Minecraft (Fabric / NeoForge)</option>
+                                <option value="2">GTA / Skyrim (ScriptHook / C++)</option>
+                                <option value="3">Unity / Unreal Engine (C# / C++)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>2. Число скриптов (1-50):</label>
+                            <input type="number" id="scriptsCount" value="8" min="1" max="50" required>
+                        </div>
+                        <div class="form-group">
+                            <label>3. Число 3D-моделей (0-100):</label>
+                            <input type="number" id="modelsCount" value="6" min="0" max="100" required>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>4. Срок выполнения в днях (1-60):</label>
+                            <input type="number" id="deadlineDays" value="14" min="1" max="60" required>
+                        </div>
+                        <div class="form-group">
+                            <label>5. Бюджет заказчика (₽):</label>
+                            <input type="number" id="clientBudget" value="8500" min="500" required oninput="updateBudgetBadge()">
+                            <div id="budgetBadge" class="badge-info">Премиум-категория (> 5000 ₽)</div>
+                        </div>
+                    </div>
+
+                    <!-- Опции -->
+                    <div class="form-group">
+                        <label>Дополнительные опции:</label>
+                        <div class="grid-3">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="optSource" checked> Исходный код (+25%)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="optMultiplayer" checked> Мультиплеер (+30%)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="optExpress"> Экспресс-заказ (+40%, && ТЗ 7)
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">⚡ Сформировать и рассчитать заказ (ТЗ 25)</button>
+                </form>
+
+                <!-- ИТОГОВЫЙ ОТЧЁТ (ТЗ 25) -->
+                <div id="reportContainer" class="report-box">
+                    <div class="report-header">
+                        <h3 style="color: var(--primary);">📋 Итоговый отчёт: Заказ модификации</h3>
+                        <button class="btn-secondary" onclick="window.print()">🖨️ Печать отчёта</button>
+                    </div>
+
+                    <div class="report-section">
+                        <h4>1. Клиент и доступ (ТЗ 3, 5, 6, 8, 9)</h4>
+                        <div class="report-row"><span class="label">Заказчик:</span><span class="val" id="repName">-</span></div>
+                        <div class="report-row"><span class="label">Возрастная категория:</span><span class="val" id="repAgeCat">-</span></div>
+                        <div class="report-row"><span class="label">Статус аккаунта:</span><span class="val" id="repStatus">-</span></div>
+                        <div class="report-row"><span class="label">VIP-статус (|| ТЗ 8):</span><span class="val" id="repVip">-</span></div>
+                    </div>
+
+                    <div class="report-section">
+                        <h4>2. Характеристики и аудит (ТЗ 13, 14, 17, 21, 22, 23)</h4>
+                        <div class="report-row"><span class="label">Категория:</span><span class="val" id="repCat">-</span></div>
+                        <div class="report-row"><span class="label">Сложность проекта (3 уровня ТЗ 23):</span><span class="val" id="repComplexity">-</span></div>
+                        <div class="report-row"><span class="label">Оценка ТЗ мода (ТЗ 13):</span><span class="val" id="repSpecScore">-</span></div>
+                        <div class="report-row"><span class="label">Аудит безопасности (ТЗ 14):</span><span class="val" id="repSafety">-</span></div>
+                    </div>
+
+                    <div class="report-section">
+                        <h4>3. Финансовый расчёт (ТЗ 4, 11, 12, 18)</h4>
+                        <div class="report-row"><span class="label">Бюджет заказчика:</span><span class="val" id="repBudget">-</span></div>
+                        <div class="report-row"><span class="label">Расчётная стоимость работ:</span><span class="val" id="repRawPrice">-</span></div>
+                        <div class="report-row"><span class="label">Персональная скидка:</span><span class="val" id="repDiscount">-</span></div>
+                        <div class="report-row"><span class="label">ИТОГО К ОПЛАТЕ:</span><span class="val price-highlight" id="repFinalPrice">-</span></div>
+                        <div class="report-row"><span class="label">Баланс сделки (ТЗ 12):</span><span class="val" id="repFinance">-</span></div>
+                    </div>
+
+                    <div class="report-section">
+                        <h4>4. Персонализированные рекомендации (ТЗ 24)</h4>
+                        <div class="recommendation-text" id="repRecs">-</div>
+                    </div>
+
+                    <div class="report-section">
+                        <h4>5. Вердикт системы (Вложенные if ТЗ 10 / Сценарии ТЗ 20)</h4>
+                        <div id="repVerdict">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- ВКЛАДКА 2: КАЛЬКУЛЯТОР ТАРИФОВ (ТЗ 4, 11, 18) -->
+        <!-- ======================================================== -->
+        <div id="tab-calculator" class="tab-content">
+            <div class="card">
+                <div class="card-title">💰 Интерактивный калькулятор тарифов и скидок</div>
+                
+                <label>Выберите базовый тариф (ТЗ 18):</label>
+                <div class="grid-3" style="margin-bottom: 20px;">
+                    <div class="tariff-card selected" id="tariffCard1" onclick="selectTariff(1, 1500)">
+                        <h3>Базовый</h3>
+                        <div class="tariff-price">1 500 ₽</div>
+                        <p style="font-size: 13px; color: var(--text-muted);">Простые правки, небольшие предметы и конфиги</p>
+                    </div>
+                    <div class="tariff-card" id="tariffCard2" onclick="selectTariff(2, 3800)">
+                        <h3>Стандарт</h3>
+                        <div class="tariff-price">3 800 ₽</div>
+                        <p style="font-size: 13px; color: var(--text-muted);">Новые механики, кастомные мобы и интерфейс</p>
+                    </div>
+                    <div class="tariff-card" id="tariffCard3" onclick="selectTariff(3, 7500)">
+                        <h3>Эксперт</h3>
+                        <div class="tariff-price">7 500 ₽</div>
+                        <p style="font-size: 13px; color: var(--text-muted);">Глобальное DLC под ключ с поддержкой мультиплеера</p>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Статус клиента для скидки (ТЗ 11):</label>
+                        <select id="calcStatus" onchange="recalcQuickPrice()">
+                            <option value="VIP">VIP-клиент (скидка 15-25%)</option>
+                            <option value="REGULAR" selected>Постоянный клиент (REGULAR, скидка 5-10%)</option>
+                            <option value="NEW">Новый клиент (NEW, бонус до 5%)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Опции модификатора:</label>
+                        <label class="checkbox-label"><input type="checkbox" id="calcSource" onchange="recalcQuickPrice()"> Исходный код (+25%)</label>
+                        <label class="checkbox-label"><input type="checkbox" id="calcExpress" onchange="recalcQuickPrice()"> Срочность (+40%)</label>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-input); padding: 18px; border-radius: 8px; border: 1px solid var(--border); margin-top: 15px;">
+                    <div class="report-row"><span class="label">Базовая стоимость:</span><span class="val" id="calcBaseVal">3 800 ₽</span></div>
+                    <div class="report-row"><span class="label">Скидка:</span><span class="val" id="calcDiscountVal">5%</span></div>
+                    <div class="report-row" style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px;">
+                        <span class="label" style="font-size: 16px; font-weight: 700;">ИТОГ К ОПЛАТЕ:</span>
+                        <span class="val price-highlight" id="calcTotalVal">3 610 ₽</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- ВКЛАДКА 3: БЕЗОПАСНОСТЬ И ТЗ (ТЗ 10, 13, 14) -->
+        <!-- ======================================================== -->
+        <div id="tab-safety" class="tab-content">
+            <div class="card">
+                <div class="card-title">🛡️ Аудит безопасности кода и оценка ТЗ</div>
+                <div class="grid-2">
+                    <div>
+                        <h4 style="color: var(--accent); margin-bottom: 12px;">Проверка безопасности мода (ТЗ 14)</h4>
+                        <label class="checkbox-label"><input type="checkbox" id="secCheat" onchange="evalSafety()"> Содержит читы / эксплойты / аимбот</label>
+                        <label class="checkbox-label"><input type="checkbox" id="secSys" onchange="evalSafety()"> Модифицирует системные файлы ОС</label>
+                        <label class="checkbox-label"><input type="checkbox" id="secDll" onchange="evalSafety()"> Использует сторонние DLL библиотеки</label>
+
+                        <div id="safetyResult" style="margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 14px; background: rgba(52, 211, 153, 0.1); border: 1px solid var(--success); color: var(--success); font-weight: 600;">
+                            Уровень риска: НИЗКИЙ (Безопасный чистый мод)
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="color: var(--accent); margin-bottom: 12px;">3 последовательных уровня проверки (ТЗ 10)</h4>
+                        <label class="checkbox-label"><input type="checkbox" id="feasDev" checked onchange="evalFeas()"> Уровень 1: Свободный разработчик доступен</label>
+                        <label class="checkbox-label"><input type="checkbox" id="feasEng" checked onchange="evalFeas()"> Уровень 2: Версия движка поддерживается</label>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label>Уровень 3: Срок разработки в днях (минимум 3):</label>
+                            <input type="number" id="feasDays" value="5" min="1" max="60" onchange="evalFeas()">
+                        </div>
+
+                        <div id="feasResult" style="margin-top: 10px; padding: 12px; border-radius: 8px; font-size: 13px; background: rgba(56, 189, 248, 0.1); border: 1px solid var(--primary); font-weight: 600;">
+                            Заказ ПРИНЯТ в работу (все 3 уровня пройдены).
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- ВКЛАДКА 4: РЕКОМЕНДАТОР (ТЗ 15, 20) -->
+        <!-- ======================================================== -->
+        <div id="tab-recommend" class="tab-content">
+            <div class="card">
+                <div class="card-title">💡 Персональный подбор модификации (ТЗ 15)</div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Жанр игры:</label>
+                        <select id="recGenre" onchange="evalRecommend()">
+                            <option value="1">RPG (Сюжет, диалоги, прокачка)</option>
+                            <option value="2">Песочница (Майнкрафт, строительство)</option>
+                            <option value="3">Шутер / Экшен (Стрельба, оружие, физика)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Опыт игрока:</label>
+                        <select id="recExp" onchange="evalRecommend()">
+                            <option value="1">Новичок в моддинге</option>
+                            <option value="2">Опытный моддер / хардкорщик</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="recommendation-text" id="recOutput" style="font-size: 14px; padding: 16px;">
+                    Рекомендация: Простой квестовый мод с новыми диалогами и подсказками.
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- ВКЛАДКА 5: СПРАВОЧНИК ТЗ (1-25) -->
+        <!-- ======================================================== -->
+        <div id="tab-reference" class="tab-content">
+            <div class="card">
+                <div class="card-title">📋 Полный перечень реализованных требований (ТЗ 1-25)</div>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">
+                    Каждое задание технического задания отражено как в Java-классах, так и в этом веб-интерфейсе:
+                </p>
+                <table class="table-tz">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">№</th>
+                            <th>Техническое задание</th>
+                            <th>Реализация в ModCraft Studio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Главное меню программы</td><td>Интерактивная шапка и табы навигации по 5 разделам</td></tr>
+                        <tr><td>2</td><td>Проверка введённых данных</td><td>HTML5 валидация, проверка на пустые поля и границы чисел</td></tr>
+                        <tr><td>3</td><td>Статус пользователя (if-else)</td><td>Активный, Неактивный, Заблокированный</td></tr>
+                        <tr><td>4</td><td>Числовой показатель (3 исхода)</td><td>Бюджет: Эконом (<1500), Стандарт (1500-5000), Премиум (>5000)</td></tr>
+                        <tr><td>5</td><td>Проверка доступа (логин/пароль)</td><td>Авторизация в Java (admin / 123)</td></tr>
+                        <tr><td>6</td><td>Проверка возраста (4 категории)</td><td>Дети (<14), Подростки (14-17), Взрослые (18-59), Ветераны (60+)</td></tr>
+                        <tr><td>7</td><td>Несколько условий через &&</td><td>Экспресс-заказ: возраст >= 18 && бюджет >= 3000</td></tr>
+                        <tr><td>8</td><td>Альтернативные условия через ||</td><td>VIP-клуб: сумма >= 10000 || заказов >= 5</td></tr>
+                        <tr><td>9</td><td>Логический оператор !</td><td>Проверка !isBlocked (пользователь не в черном списке)</td></tr>
+                        <tr><td>10</td><td>Вложенные if (3 уровня)</td><td>Проверка свободного кодера -> движка -> сроков</td></tr>
+                        <tr><td>11</td><td>Система расчёта скидок</td><td>Зависимость скидки от суммы и статуса (VIP / Regular / New)</td></tr>
+                        <tr><td>12</td><td>Финансовое состояние</td><td>Анализ дефицита, баланса или профицита средств</td></tr>
+                        <tr><td>13</td><td>Оценка результатов ТЗ</td><td>Градация ТЗ по 100-балльной шкале (низкая, средняя, высокая)</td></tr>
+                        <tr><td>14</td><td>Проверка безопасности</td><td>Уровни риска: Низкий, Средний, Высокий, Критический</td></tr>
+                        <tr><td>15</td><td>Система рекомендаций</td><td>Подбор мода по жанру игры и игровому опыту</td></tr>
+                        <tr><td>16</td><td>Переключение через switch</td><td>5 разделов системы в меню консоли и на сайте</td></tr>
+                        <tr><td>17</td><td>Выбор категории услуги</td><td>Текстуры, Скрипты, Конверсия, Оптимизация, Портирование</td></tr>
+                        <tr><td>18</td><td>Калькулятор стоимости</td><td>Расчет цены по тарифам и опциям (исходники, сеть, срочность)</td></tr>
+                        <tr><td>19</td><td>Обработка ошибок ввода</td><td>Предупреждения и повторный запрос при некорректных значениях</td></tr>
+                        <tr><td>20</td><td>Комбинация switch + if + && || !</td><td>5 комплексных сценариев одобрения заявки</td></tr>
+                        <tr><td>21</td><td>Индивидуальный модуль (5 условий)</td><td>Предметная область: Магазин по заказу модов (движок, код, 3D, сеть)</td></tr>
+                        <tr><td>22</td><td>Анализ данных по 5 параметрам</td><td>Анализ движка, скриптов, моделей, сроков и бюджета</td></tr>
+                        <tr><td>23</td><td>3 уровня результата</td><td>Мини-мод (Инди), Аддон (DLC), Total Overhaul (AAA)</td></tr>
+                        <tr><td>24</td><td>Персонализированные советы</td><td>Рекомендации загрузчиков (Fabric/Forge), тестеров и ОЗУ</td></tr>
+                        <tr><td>25</td><td>Финальный итоговый отчёт</td><td>Единый подробный отчёт с полными характеристиками решения</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 ModCraft Studio. Проект разработан в соответствии с техническим заданием (ТЗ 1-25).</p>
+        <p style="margin-top: 4px; font-size: 11px; opacity: 0.7;">Совместимо с Java 8, 11, 17, 21, 25 • Локальный веб-сервер</p>
+    </footer>
+
+    <script>
+        let selectedTariffId = 2;
+        let selectedTariffPrice = 3800;
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabName));
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const activeContent = document.getElementById('tab-' + tabName);
+            if (activeContent) activeContent.classList.add('active');
+        }
+
+        function updateAgeBadge() {
+            const age = parseInt(document.getElementById('custAge').value) || 0;
+            const badge = document.getElementById('ageBadge');
+            if (age < 14) badge.textContent = "Категория: Дети (до 14 лет, требуется соглашение родителей)";
+            else if (age < 18) badge.textContent = "Категория: Подростки (14-17 лет, скидка новичка)";
+            else if (age < 60) badge.textContent = "Категория: Взрослые (18-59 лет, полный доступ)";
+            else badge.textContent = "Категория: Ветераны гейминга (60+ лет, почётная скидка)";
+        }
+
+        function updateBudgetBadge() {
+            const bg = parseFloat(document.getElementById('clientBudget').value) || 0;
+            const badge = document.getElementById('budgetBadge');
+            if (bg < 1500) badge.textContent = "Эконом-категория (< 1500 ₽, мелкие правки/текстуры)";
+            else if (bg <= 5000) badge.textContent = "Стандарт-категория (1500-5000 ₽, новые механики/мобы)";
+            else badge.textContent = "Премиум-категория (> 5000 ₽, крупный мод под ключ)";
+        }
+
+        function calculateFullOrder(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('custName').value;
+            const age = parseInt(document.getElementById('custAge').value) || 18;
+            const statusChoice = document.getElementById('custStatus').value;
+            const isBlocked = (statusChoice === '3');
+            const totalSpent = parseFloat(document.getElementById('custSpent').value) || 0;
+
+            if (isBlocked) {
+                alert("ОТКАЗ (ТЗ 9): Заблокированные пользователи не могут создавать новые заказы!");
+                return;
+            }
+
+            const isVip = (totalSpent >= 10000); // ТЗ 8
+            const catSelect = document.getElementById('serviceCategory');
+            const catName = catSelect.options[catSelect.selectedIndex].text;
+
+            const engineType = parseInt(document.getElementById('engineType').value);
+            const scripts = parseInt(document.getElementById('scriptsCount').value) || 1;
+            const models = parseInt(document.getElementById('modelsCount').value) || 0;
+            const days = parseInt(document.getElementById('deadlineDays').value) || 7;
+            const budget = parseFloat(document.getElementById('clientBudget').value) || 2000;
+
+            const optSource = document.getElementById('optSource').checked;
+            const optMultiplayer = document.getElementById('optMultiplayer').checked;
+            let optExpress = document.getElementById('optExpress').checked;
+
+            // ТЗ 7 (&&)
+            if (optExpress && !(age >= 18 && budget >= 3000)) {
+                alert("[Внимание]: Экспресс-заказ доступен только клиентам от 18 лет с бюджетом от 3000 ₽. Опция отключена.");
+                optExpress = false;
+                document.getElementById('optExpress').checked = false;
+            }
+
+            // ТЗ 18 (Расчет цены)
+            let basePrice = (budget < 2500) ? 1500 : ((budget <= 6000) ? 3800 : 7500);
+            let rawCost = basePrice;
+            if (optSource) rawCost += basePrice * 0.25;
+            if (optExpress) rawCost += basePrice * 0.40;
+            if (optMultiplayer) rawCost += basePrice * 0.30;
+
+            // ТЗ 11 (Скидка)
+            let discount = 0;
+            if (isVip) discount = (rawCost >= 5000) ? 25 : 15;
+            else if (totalSpent > 0) discount = (rawCost >= 5000) ? 10 : 5;
+            else if (rawCost >= 3000) discount = 5;
+
+            const finalPrice = rawCost * (1 - discount / 100);
+
+            // ТЗ 23 (Сложность)
+            let points = (scripts * 3) + (models * 2) + (engineType === 3 ? 15 : 0);
+            let complexity = "НИЗКИЙ УРОВЕНЬ (Мини-мод / Инди)";
+            if (points > 60) complexity = "ВЫСОКИЙ УРОВЕНЬ (Total Overhaul / Крупный проект)";
+            else if (points >= 20) complexity = "СРЕДНИЙ УРОВЕНЬ (Полноценный аддон / DLC)";
+
+            // ТЗ 12 (Финансовое состояние)
+            let diff = budget - finalPrice;
+            let finStatus = "";
+            if (diff < 0) finStatus = `ДЕФИЦИТ: не хватает ${Math.abs(diff).toFixed(0)} ₽ (требуется доплата)`;
+            else if (diff === 0) finStatus = "ТОЧНЫЙ БАЛАНС: бюджет покрывает стоимость ровно в ноль";
+            else finStatus = `ПРОФИЦИТ: остаток средств ${diff.toFixed(0)} ₽ на доп. улучшения`;
+
+            // ТЗ 24 (Рекомендации)
+            let recs = "";
+            if (engineType === 1) recs += "• Для Minecraft рекомендуется Fabric (высокий FPS) или NeoForge.\n";
+            else if (engineType === 2) recs += "• Рекомендуется ScriptHook и запуск через Mod Organizer 2.\n";
+            else recs += "• Рекомендуется модульная архитектура плагина через BepInEx / Harmony.\n";
+            if (optMultiplayer) recs += "• Сетевая игра: обязательно стресс-тестирование синхронизации пакетов.\n";
+            if (complexity.includes("ВЫСОКИЙ")) recs += "• Рекомендуем разбить разработку на этапы: Альфа, Бета и Релиз.";
+            else recs += "• Проект может быть выполнен одним опытным разработчиком.";
+
+            // Заполнение отчёта
+            document.getElementById('repName').textContent = name;
+            document.getElementById('repAgeCat').textContent = document.getElementById('ageBadge').textContent;
+            document.getElementById('repStatus').textContent = (statusChoice === '1') ? 'Активный' : 'Неактивный';
+            document.getElementById('repVip').textContent = isVip ? 'ДА (Скидочный клуб)' : 'НЕТ';
+            document.getElementById('repCat').textContent = catName;
+            document.getElementById('repComplexity').textContent = complexity;
+            document.getElementById('repSpecScore').textContent = (50 + (scripts > 5 ? 20 : 0) + (days >= 7 ? 20 : 0)) + "/100 (Хорошее ТЗ)";
+            document.getElementById('repSafety').textContent = (engineType === 3 ? "Средний риск (Внешние DLL)" : "Низкий риск (Чистый безопасный мод)");
+            document.getElementById('repBudget').textContent = budget.toLocaleString('ru-RU') + " ₽";
+            document.getElementById('repRawPrice').textContent = rawCost.toLocaleString('ru-RU') + " ₽";
+            document.getElementById('repDiscount').textContent = discount + "%";
+            document.getElementById('repFinalPrice').textContent = finalPrice.toLocaleString('ru-RU') + " ₽";
+            document.getElementById('repFinance').textContent = finStatus;
+            document.getElementById('repRecs').textContent = recs;
+
+            const verdictEl = document.getElementById('repVerdict');
+            if (days < 3) {
+                verdictEl.className = "verdict-badge verdict-rejected";
+                verdictEl.textContent = "ОТКЛОНЕНО (ТЗ 10): Срок менее 3 дней недостаточен для качественной разработки.";
+            } else {
+                verdictEl.className = "verdict-badge verdict-accepted";
+                verdictEl.textContent = "ЗАКАЗ ОДОБРЕН И ПРИНЯТ В РАЗРАБОТКУ (Все проверки пройдены успешно!)";
+            }
+
+            const repBox = document.getElementById('reportContainer');
+            repBox.classList.add('show');
+            repBox.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function selectTariff(id, price) {
+            selectedTariffId = id;
+            selectedTariffPrice = price;
+            document.querySelectorAll('.tariff-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('tariffCard' + id).classList.add('selected');
+            recalcQuickPrice();
+        }
+
+        function recalcQuickPrice() {
+            let total = selectedTariffPrice;
+            if (document.getElementById('calcSource').checked) total += selectedTariffPrice * 0.25;
+            if (document.getElementById('calcExpress').checked) total += selectedTariffPrice * 0.40;
+
+            const st = document.getElementById('calcStatus').value;
+            let disc = (st === 'VIP') ? 20 : (st === 'REGULAR' ? 5 : 0);
+            let finalP = total * (1 - disc / 100);
+
+            document.getElementById('calcBaseVal').textContent = total.toLocaleString('ru-RU') + " ₽";
+            document.getElementById('calcDiscountVal').textContent = disc + "%";
+            document.getElementById('calcTotalVal').textContent = finalP.toLocaleString('ru-RU') + " ₽";
+        }
+
+        function evalSafety() {
+            const cheat = document.getElementById('secCheat').checked;
+            const sys = document.getElementById('secSys').checked;
+            const dll = document.getElementById('secDll').checked;
+            const res = document.getElementById('safetyResult');
+
+            if (cheat) {
+                res.style.background = "rgba(248, 113, 113, 0.15)";
+                res.style.borderColor = "var(--danger)";
+                res.style.color = "var(--danger)";
+                res.textContent = "КРИТИЧЕСКИЙ РИСК: Заказ отклонён! Читерское ПО запрещено.";
+            } else if (sys) {
+                res.style.background = "rgba(251, 191, 36, 0.15)";
+                res.style.borderColor = "var(--warning)";
+                res.style.color = "var(--warning)";
+                res.textContent = "ВЫСОКИЙ РИСК: Затрагиваются системные файлы! Требуется ручной аудит.";
+            } else if (dll) {
+                res.style.background = "rgba(129, 140, 248, 0.15)";
+                res.style.borderColor = "var(--accent)";
+                res.style.color = "var(--accent)";
+                res.textContent = "СРЕДНИЙ РИСК: Используются сторонние DLL (нужна цифровая подпись).";
+            } else {
+                res.style.background = "rgba(52, 211, 153, 0.15)";
+                res.style.borderColor = "var(--success)";
+                res.style.color = "var(--success)";
+                res.textContent = "НИЗКИЙ РИСК: Чистый и безопасный мод для игры.";
+            }
+        }
+
+        function evalFeas() {
+            const dev = document.getElementById('feasDev').checked;
+            const eng = document.getElementById('feasEng').checked;
+            const days = parseInt(document.getElementById('feasDays').value) || 0;
+            const res = document.getElementById('feasResult');
+
+            if (!dev) {
+                res.textContent = "ОТКЛОНЕНО (Уровень 1): Все разработчики заняты.";
+                res.style.borderColor = "var(--danger)";
+                res.style.color = "var(--danger)";
+            } else if (!eng) {
+                res.textContent = "ОТКЛОНЕНО (Уровень 2): Версия движка не поддерживается.";
+                res.style.borderColor = "var(--danger)";
+                res.style.color = "var(--danger)";
+            } else if (days < 3) {
+                res.textContent = "ОТКЛОНЕНО (Уровень 3): Срок менее 3 дней нереалистичен.";
+                res.style.borderColor = "var(--danger)";
+                res.style.color = "var(--danger)";
+            } else {
+                res.textContent = "Заказ ПРИНЯТ в работу: есть разработчик, движок поддерживается, сроки в норме.";
+                res.style.borderColor = "var(--success)";
+                res.style.color = "var(--success)";
+            }
+        }
+
+        function evalRecommend() {
+            const g = document.getElementById('recGenre').value;
+            const e = document.getElementById('recExp').value;
+            const out = document.getElementById('recOutput');
+
+            if (g === '1' && e === '1') out.textContent = "Рекомендация: Простой квестовый мод с новыми диалогами и подсказками.";
+            else if (g === '1' && e === '2') out.textContent = "Рекомендация: Хардкорный ребаланс магии, новые ветки прокачки и боссы.";
+            else if (g === '2' && e === '1') out.textContent = "Рекомендация: Набор уютной мебели, декораций и готовых построек.";
+            else if (g === '2' && e === '2') out.textContent = "Рекомендация: Технологический мод с автоматизацией, трубами и генераторами энергии.";
+            else if (g === '3' && e === '1') out.textContent = "Рекомендация: Кастомные скины оружия и удобный интерфейс прицела.";
+            else out.textContent = "Рекомендация: Реалистичная баллистика, отдача оружия и умный ИИ противников.";
+        }
+    </script>
+</body>
+</html>
